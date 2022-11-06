@@ -38,15 +38,12 @@ function Chat() {
         maxWidth: "100%",
         height: "calc(100vh - 64px)",
         maxHeight: "calc(100vh - 64px)",
-        backgroundColor: "green",
       }}
     >
       <Stack
-        spacing={0.5}
         minWidth= "0"
         maxHeight={"calc(100vh - 64px)"}
         maxWidth="100%"
-        backgroundColor="blue"
       >
         <Box></Box>
         <Box
@@ -64,6 +61,7 @@ function Chat() {
           sx={{
             width: "100%",
             backgroundColor: "white",
+            boxShadow: 2
           }}
           maxWidth="100%"
           p={2}
@@ -100,6 +98,7 @@ function Chat() {
               sx={{
                 height: 48,
                 width: 48,
+                borderRadius: 2.5,
               }}
             >
               <GrSend size={"25px"}/>

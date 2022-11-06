@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import React, { useState } from "react";
 import { styled, useTheme } from "@mui/material/styles";
 import Box from "@mui/material/Box";
 import MuiDrawer from "@mui/material/Drawer";
@@ -53,16 +53,16 @@ const Main = styled("main", { shouldForwardProp: (prop) => prop !== "open" })(
     padding: theme.spacing(3),
     transition: theme.transitions.create("margin", {
       easing: theme.transitions.easing.sharp,
-      duration: theme.transitions.duration.leavingScreen
+      duration: theme.transitions.duration.leavingScreen,
     }),
     marginLeft: `-${drawerWidth}px`,
     ...(open && {
       transition: theme.transitions.create("margin", {
         easing: theme.transitions.easing.easeOut,
-        duration: theme.transitions.duration.enteringScreen
+        duration: theme.transitions.duration.enteringScreen,
       }),
-      marginLeft: 0
-    })
+      marginLeft: 0,
+    }),
   })
 );
 
@@ -111,7 +111,7 @@ const Drawer = styled(MuiDrawer, {
 }));
 
 export default function Navbar(props) {
-  const [toolbarHeader, setToolbarHeader] = useState("Chat")
+  const [toolbarHeader, setToolbarHeader] = useState("Chat");
   const history = useHistory();
 
   const theme = useTheme();
@@ -128,8 +128,8 @@ export default function Navbar(props) {
   return (
     <Box sx={{ display: "flex", minWidth: "500px" }}>
       <CssBaseline />
-      <AppBar position="fixed" open={open} sx={{height: "64px"}}>
-        <Toolbar >
+      <AppBar position="fixed" open={open} sx={{ height: "64px" }}>
+        <Toolbar>
           <IconButton
             color="inherit"
             aria-label="open drawer"
@@ -147,7 +147,7 @@ export default function Navbar(props) {
           </Typography>
         </Toolbar>
       </AppBar>
-      <Drawer variant="permanent" open={open}>
+      <Drawer variant="permanent" open={open} sx={{ boxShadow: 2 }}>
         <DrawerHeader>
           <IconButton onClick={handleDrawerClose}>
             {theme.direction === "rtl" ? (
@@ -161,15 +161,22 @@ export default function Navbar(props) {
         <List>
           {routes.map((route) => (
             <ListItem
-              sx={{ display: "block" }}
+              sx={{
+                display: "block",
+              }}
               onClick={() => {
                 history.push(route.link);
-                setToolbarHeader(route.title)
+                setToolbarHeader(route.title);
               }}
             >
               <ListItemButton
                 sx={{
                   minHeight: 48,
+                  borderRadius: "10px",
+                  backgroundColor: route.title === toolbarHeader ? "red" : null,
+                  "&:hover" : {
+                    backgroundColor: route.title === toolbarHeader ? "lightcoral" : null,
+                  },
                   justifyContent: open ? "initial" : "center",
                   px: 2.5,
                 }}
@@ -199,6 +206,7 @@ export default function Navbar(props) {
                 minHeight: 48,
                 justifyContent: open ? "initial" : "center",
                 px: 2.5,
+                borderRadius: "10px",
               }}
             >
               <ListItemIcon
@@ -215,7 +223,7 @@ export default function Navbar(props) {
           </ListItem>
         </List>
       </Drawer>
-      <Box component="main" sx={{ flexGrow: 1, p: 0, minWidth: 0}}>
+      <Box component="main" sx={{ flexGrow: 1, p: 0, minWidth: 0 }}>
         <DrawerHeader />
         {props.children}
       </Box>
