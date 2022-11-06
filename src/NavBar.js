@@ -1,4 +1,4 @@
-import * as React from "react";
+import React, {useState} from "react";
 import { styled, useTheme } from "@mui/material/styles";
 import Box from "@mui/material/Box";
 import MuiDrawer from "@mui/material/Drawer";
@@ -47,6 +47,25 @@ const closedMixin = (theme) => ({
   },
 });
 
+const Main = styled("main", { shouldForwardProp: (prop) => prop !== "open" })(
+  ({ theme, open }) => ({
+    flexGrow: 1,
+    padding: theme.spacing(3),
+    transition: theme.transitions.create("margin", {
+      easing: theme.transitions.easing.sharp,
+      duration: theme.transitions.duration.leavingScreen
+    }),
+    marginLeft: `-${drawerWidth}px`,
+    ...(open && {
+      transition: theme.transitions.create("margin", {
+        easing: theme.transitions.easing.easeOut,
+        duration: theme.transitions.duration.enteringScreen
+      }),
+      marginLeft: 0
+    })
+  })
+);
+
 const DrawerHeader = styled("div")(({ theme }) => ({
   display: "flex",
   alignItems: "center",
@@ -92,6 +111,7 @@ const Drawer = styled(MuiDrawer, {
 }));
 
 export default function Navbar(props) {
+  const [toolbarHeader, setToolbarHeader] = useState("Chat")
   const history = useHistory();
 
   const theme = useTheme();
@@ -106,10 +126,10 @@ export default function Navbar(props) {
   };
 
   return (
-    <Box sx={{ display: "flex" }}>
+    <Box sx={{ display: "flex", minWidth: "500px" }}>
       <CssBaseline />
-      <AppBar position="fixed" open={open}>
-        <Toolbar>
+      <AppBar position="fixed" open={open} sx={{height: "64px"}}>
+        <Toolbar >
           <IconButton
             color="inherit"
             aria-label="open drawer"
@@ -122,12 +142,12 @@ export default function Navbar(props) {
           >
             <MenuIcon />
           </IconButton>
-          <Typography variant="h6" noWrap component="div">
-            Mini variant drawer
+          <Typography variant="h5" noWrap component="div">
+            {toolbarHeader}
           </Typography>
         </Toolbar>
       </AppBar>
-      <Drawer variant="permanent" open={open} sx={{ color: "red" }}>
+      <Drawer variant="permanent" open={open}>
         <DrawerHeader>
           <IconButton onClick={handleDrawerClose}>
             {theme.direction === "rtl" ? (
@@ -139,12 +159,12 @@ export default function Navbar(props) {
         </DrawerHeader>
         <Divider />
         <List>
-          {routes.map((route, index) => (
+          {routes.map((route) => (
             <ListItem
-              key={route.name}
               sx={{ display: "block" }}
               onClick={() => {
                 history.push(route.link);
+                setToolbarHeader(route.title)
               }}
             >
               <ListItemButton
@@ -164,7 +184,7 @@ export default function Navbar(props) {
                   {route.icon}
                 </ListItemIcon>
                 <ListItemText
-                  primary={route.name}
+                  primary={route.title}
                   sx={{ opacity: open ? 1 : 0 }}
                 />
               </ListItemButton>
@@ -195,7 +215,7 @@ export default function Navbar(props) {
           </ListItem>
         </List>
       </Drawer>
-      <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
+      <Box component="main" sx={{ flexGrow: 1, p: 0, minWidth: 0}}>
         <DrawerHeader />
         {props.children}
       </Box>

@@ -5,17 +5,17 @@ import SettingsIcon from '@mui/icons-material/Settings';
 
 export const routes = [
   {
-    name: "chat",
+    title: "Chat",
     link: "/",
     icon: <ChatIcon />
   },
   {
-    name: "settings",
+    title: "Settings",
     link: "/settings",
     icon: <SettingsIcon />
   },
   {
-    name: "Chat history",
+    title: "Chat history",
     link: "/history",
     icon: <HistoryIcon />
   },
