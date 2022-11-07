@@ -14,6 +14,10 @@ import Container from "@mui/material/Container";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import { useHistory } from "react-router-dom";
 import { Alert } from "@mui/material";
+import { createAvatar } from '@dicebear/avatars';
+import * as style from '@dicebear/avatars-avataaars-sprites';
+import SVG from 'react-inlinesvg';
+
 
 function Copyright(props) {
   return (
@@ -39,6 +43,12 @@ export default function Login() {
   const [name, setName] = useState("Enter your name");
   const [alert, setAlert] = useState(true)
   
+  const avatarSVG = createAvatar(style, {
+    seed: name,
+    style: 'transparent',
+    scale: 100
+  });
+
   const history = useHistory();
 
   const handleSubmit = (event) => {
@@ -68,14 +78,10 @@ export default function Login() {
               m: 1,
               width: "160px",
               height: "160px",
-              // width: '10',
-              // height: '10',
+              bgcolor: "white"
             }}
           >
-            <img
-              src={`https://avatars.dicebear.com/api/avataaars/${name}.svg?scale=100&background=white`}
-              alt="initials"
-            />
+            <SVG src={avatarSVG} />
           </Avatar>
           <Typography component="h1" variant="h5">
             {name ? name : "Enter your name"}

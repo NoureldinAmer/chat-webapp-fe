@@ -1,4 +1,4 @@
-import React, { createContext } from "react";
+import React, { createContext, useMemo, useState } from "react";
 import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
 import Chat from "./Chat";
 import Settings from "./Settings";
@@ -13,11 +13,7 @@ import { Paper } from "@mui/material";
 const ColorModeContext = createContext({ toggleColorMode: () => {} });
 
 function App() {
-  const theme = createTheme({
-    palette: {
-      mode: "dark",
-    },
-  });
+
 
   return (
     //router

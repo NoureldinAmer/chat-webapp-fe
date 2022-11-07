@@ -16,8 +16,6 @@ import ListItem from "@mui/material/ListItem";
 import ListItemButton from "@mui/material/ListItemButton";
 import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";
-import InboxIcon from "@mui/icons-material/MoveToInbox";
-import MailIcon from "@mui/icons-material/Mail";
 import { useHistory } from "react-router-dom";
 import { routes } from "./routes";
 
@@ -25,7 +23,7 @@ import DarkModeOutlinedIcon from "@mui/icons-material/DarkModeOutlined";
 import LightModeIcon from "@mui/icons-material/LightMode";
 import { ThemeProvider } from "@emotion/react";
 import { Paper } from "@mui/material";
-import { light } from "@mui/material/styles/createPalette";
+import { yellow } from "@mui/material/colors";
 
 const drawerWidth = 240;
 
@@ -115,7 +113,7 @@ const Drawer = styled(MuiDrawer, {
 
 export default function Navbar(props) {
   const [toolbarHeader, setToolbarHeader] = useState("Chat");
-  const [darkMode, setDarkMode] = useState(false)
+  const [darkMode, setDarkMode] = useState(false);
   const history = useHistory();
 
   const [open, setOpen] = useState(false);
@@ -128,69 +126,197 @@ export default function Navbar(props) {
     setOpen(false);
   };
 
-  const theme = useMemo(
-    () => createTheme({
+  const theme = useMemo(() =>
+    createTheme({
       palette: {
         mode: darkMode ? "dark" : "light",
+        primary: {
+          main: "#001E3D",
+          light: "#F0F4FA",
+          dark: "#001E3D",
+        },
+        secondary: {
+          main: "#65B2FF",
+          light: "#e6e9ed",
+          dark: "#0A1929",
+        },
+        sideBarText: {
+          main: "black",
+          light: "#6f7e86",
+          dark: "rgb(178, 186, 194)",
+          selectedLight: "#5B96F7",
+          selectedDark: "#132f4c",
+          hoverLight: "#5B96F7",
+          hoverDark: "F0F7FF",
+          selectedTextLight: "#FFFFFF",
+          selectedTextDark: "#63aefb",
+        },
+        sideBarIcons: {
+          main: "black",
+          light: "#6f7e86",
+          dark: "rgb(178, 186, 194)",
+          selectedLight: "#FFFFFF",
+          selectedDark: "#63aefb",
+        },
       },
     })
-  )
+  );
 
   return (
     <ThemeProvider theme={theme}>
-    <Box sx={{ display: "flex", minWidth: "500px" }}>
-      <CssBaseline />
-      <AppBar position="fixed" open={open} sx={{ height: "64px" }}>
-        <Toolbar>
-          <IconButton
-            color="inherit"
-            aria-label="open drawer"
-            onClick={handleDrawerOpen}
-            edge="start"
-            sx={{
-              marginRight: 5,
-              ...(open && { display: "none" }),
-            }}
-          >
-            <MenuIcon />
-          </IconButton>
-          <Typography variant="h5" noWrap component="div">
-            {toolbarHeader}
-          </Typography>
-        </Toolbar>
-      </AppBar>
-      <Drawer variant="permanent" open={open} sx={{ boxShadow: 10}}>
-        <DrawerHeader>
-          <IconButton onClick={handleDrawerClose}>
-            {theme.direction === "rtl" ? (
-              <ChevronRightIcon />
-            ) : (
-              <ChevronLeftIcon />
-            )}
-          </IconButton>
-        </DrawerHeader>
-        <Divider />
-        <List>
-          {routes.map((route) => (
-            <ListItem
+      <Box sx={{ display: "flex", minWidth: "500px",  }} >
+        <CssBaseline />
+        <AppBar
+          position="fixed"
+          open={open}
+          sx={{
+            height: "64px",
+            boxShadow: 2,
+            bgcolor:
+              theme.palette.mode == "light"
+                ? "secondary.light"
+                : "secondary.dark",
+          }}
+        >
+          <Toolbar>
+            <IconButton
+              color="inherit"
+              aria-label="open drawer"
+              onClick={handleDrawerOpen}
+              edge="start"
               sx={{
-                display: "block",
-              }}
-              onClick={() => {
-                history.push(route.link);
-                setToolbarHeader(route.title);
+                marginRight: 5,
+                ...(open && { display: "none" }),
+                color:
+                  theme.palette.mode == "light"
+                    ? "sideBarIcons.light"
+                    : "sideBarIcons.dark",
               }}
             >
+              <MenuIcon />
+            </IconButton>
+            <Typography
+              variant="h5"
+              noWrap
+              component="div"
+              sx={{
+                color:
+                  theme.palette.mode == "light"
+                    ? "sideBarText.light"
+                    : "sideBarText.dark",
+              }}
+              fontFamily={"IBM Plex Sans"}
+              fontWeight="500"
+            >
+              {toolbarHeader}
+            </Typography>
+          </Toolbar>
+        </AppBar>
+        <Drawer
+          variant="permanent"
+          open={open}
+          PaperProps={{
+            sx: {
+              bgcolor:
+                theme.palette.mode == "light"
+                  ? "secondary.light"
+                  : "secondary.dark",
+              color:
+                theme.palette.mode == "light"
+                  ? "sideBarText.light"
+                  : "sideBarText.dark",
+            },
+          }}
+        >
+          <DrawerHeader>
+            <IconButton onClick={handleDrawerClose}>
+              {theme.direction === "rtl" ? (
+                <ChevronRightIcon />
+              ) : (
+                <ChevronLeftIcon />
+              )}
+            </IconButton>
+          </DrawerHeader>
+          <Divider />
+          <List>
+            {routes.map((route) => (
+              <ListItem
+                sx={{
+                  display: "block",
+                  
+                }}
+                onClick={() => {
+                  history.push(route.link);
+                  setToolbarHeader(route.title);
+                }}
+              >
+                <ListItemButton
+                  sx={{
+                    minHeight: 48,
+                    borderRadius: "10px",
+                    backgroundColor:
+                      route.title === toolbarHeader
+                        ? theme.palette.mode === "light"
+                          ? "sideBarText.selectedLight"
+                          : "sideBarText.selectedDark"
+                        : null,
+                    color:
+                      route.title === toolbarHeader
+                        ? theme.palette.mode === "light"
+                          ? "sideBarText.selectedTextLight"
+                          : "sideBarText.selectedTextDark"
+                        : null,
+                    "&:hover": {
+                      backgroundColor:
+                        route.title === toolbarHeader
+                          ? theme.palette.mode == "light"
+                            ? "sideBarText.hoverLight"
+                            : "sideBarText.hoverDark"
+                          : null,
+                    },
+                    justifyContent: open ? "initial" : "center",
+                    px: 2.5,
+                  }}
+                >
+                  <ListItemIcon
+                    sx={{
+                      minWidth: 0,
+                      mr: open ? 3 : "auto",
+                      justifyContent: "center",
+                      color:
+                        route.title === toolbarHeader
+                          ? theme.palette.mode == "light"
+                            ? "sideBarIcons.selectedLight"
+                            : "sideBarIcons.selectedDark"
+                          : theme.palette.mode == "light"
+                          ? "sideBarIcons.light"
+                          : "sideBarIcons.dark",
+                    }}
+                  >
+                    {route.icon}
+                  </ListItemIcon>
+                  <ListItemText
+                    primary={route.title}
+                    sx={{ opacity: open ? 1 : 0,  }}
+                    primaryTypographyProps={{fontFamily: "IBM Plex Sans", fontWeight: "650"}}
+                  />
+                </ListItemButton>
+              </ListItem>
+            ))}
+          </List>
+          <Divider />
+          <List>
+            <ListItem key="darkmode" sx={{ display: "block" }}>
               <ListItemButton
                 sx={{
                   minHeight: 48,
-                  borderRadius: "10px",
-                  backgroundColor: route.title === toolbarHeader ? "red" : null,
-                  "&:hover" : {
-                    backgroundColor: route.title === toolbarHeader ? "lightcoral" : null,
-                  },
                   justifyContent: open ? "initial" : "center",
                   px: 2.5,
+                  borderRadius: "10px",
+                }}
+                onClick={() => {
+                  setDarkMode(!darkMode);
+                  console.log(theme);
                 }}
               >
                 <ListItemIcon
@@ -198,53 +324,38 @@ export default function Navbar(props) {
                     minWidth: 0,
                     mr: open ? 3 : "auto",
                     justifyContent: "center",
+                    color:
+                      theme.palette.mode == "light"
+                        ? "sideBarIcons.light"
+                        : "sideBarIcons.dark",
                   }}
                 >
-                  {route.icon}
+                  {darkMode ? <DarkModeOutlinedIcon /> : <LightModeIcon />}
                 </ListItemIcon>
                 <ListItemText
-                  primary={route.title}
-                  sx={{ opacity: open ? 1 : 0 }}
+                  primary={darkMode ? "Dark mode" : "Light mode"}
+                  sx={{ opacity: open ? 1 : 0,  }}
+                  primaryTypographyProps={{fontFamily: "IBM Plex Sans", fontWeight: "650"}}
                 />
               </ListItemButton>
             </ListItem>
-          ))}
-        </List>
-        <Divider />
-        <List>
-          <ListItem key="darkmode" sx={{ display: "block" }}>
-            <ListItemButton
-              sx={{
-                minHeight: 48,
-                justifyContent: open ? "initial" : "center",
-                px: 2.5,
-                borderRadius: "10px",
-              }}
-              onClick={()=>{
-                setDarkMode(!darkMode);
-              }}
-            >
-              <ListItemIcon
-                sx={{
-                  minWidth: 0,
-                  mr: open ? 3 : "auto",
-                  justifyContent: "center",
-                }}
-              >
-                <DarkModeOutlinedIcon />
-              </ListItemIcon>
-              <ListItemText primary={"Dark mode"} sx={{ opacity: open ? 1 : 0 }} />
-            </ListItemButton>
-          </ListItem>
-        </List>
-      </Drawer>
-      <Box component="main" sx={{ flexGrow: 1, p: 0, minWidth: 0 }}>
-        <DrawerHeader />
-          <Paper sx={{ boxShadow: "none", border: 'none',  borderRadius: 0 }}>
+          </List>
+        </Drawer>
+        <Box component="main" sx={{ flexGrow: 1, p: 0, minWidth: 0 }}>
+          <DrawerHeader />
+          <Paper
+            sx={{
+              boxShadow: "none",
+              border: "none",
+              borderRadius: 0,
+              backgroundColor:
+                theme.palette.mode == "light" ? "#e6e9ed" : "#0B1929",
+            }}
+          >
             {props.children}
           </Paper>
+        </Box>
       </Box>
-    </Box>
     </ThemeProvider>
   );
 }
