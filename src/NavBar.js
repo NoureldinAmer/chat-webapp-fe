@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { styled, useTheme } from "@mui/material/styles";
+import React, { useMemo, useState } from "react";
+import { createTheme, styled, useTheme } from "@mui/material/styles";
 import Box from "@mui/material/Box";
 import MuiDrawer from "@mui/material/Drawer";
 import MuiAppBar from "@mui/material/AppBar";
@@ -23,6 +23,9 @@ import { routes } from "./routes";
 
 import DarkModeOutlinedIcon from "@mui/icons-material/DarkModeOutlined";
 import LightModeIcon from "@mui/icons-material/LightMode";
+import { ThemeProvider } from "@emotion/react";
+import { Paper } from "@mui/material";
+import { light } from "@mui/material/styles/createPalette";
 
 const drawerWidth = 240;
 
@@ -112,10 +115,10 @@ const Drawer = styled(MuiDrawer, {
 
 export default function Navbar(props) {
   const [toolbarHeader, setToolbarHeader] = useState("Chat");
+  const [darkMode, setDarkMode] = useState(false)
   const history = useHistory();
 
-  const theme = useTheme();
-  const [open, setOpen] = React.useState(false);
+  const [open, setOpen] = useState(false);
 
   const handleDrawerOpen = () => {
     setOpen(true);
@@ -125,7 +128,16 @@ export default function Navbar(props) {
     setOpen(false);
   };
 
+  const theme = useMemo(
+    () => createTheme({
+      palette: {
+        mode: darkMode ? "dark" : "light",
+      },
+    })
+  )
+
   return (
+    <ThemeProvider theme={theme}>
     <Box sx={{ display: "flex", minWidth: "500px" }}>
       <CssBaseline />
       <AppBar position="fixed" open={open} sx={{ height: "64px" }}>
@@ -147,7 +159,7 @@ export default function Navbar(props) {
           </Typography>
         </Toolbar>
       </AppBar>
-      <Drawer variant="permanent" open={open} sx={{ boxShadow: 2 }}>
+      <Drawer variant="permanent" open={open} sx={{ boxShadow: 10}}>
         <DrawerHeader>
           <IconButton onClick={handleDrawerClose}>
             {theme.direction === "rtl" ? (
@@ -208,6 +220,9 @@ export default function Navbar(props) {
                 px: 2.5,
                 borderRadius: "10px",
               }}
+              onClick={()=>{
+                setDarkMode(!darkMode);
+              }}
             >
               <ListItemIcon
                 sx={{
@@ -218,15 +233,18 @@ export default function Navbar(props) {
               >
                 <DarkModeOutlinedIcon />
               </ListItemIcon>
-              <ListItemText primary={"Dark"} sx={{ opacity: open ? 1 : 0 }} />
+              <ListItemText primary={"Dark mode"} sx={{ opacity: open ? 1 : 0 }} />
             </ListItemButton>
           </ListItem>
         </List>
       </Drawer>
       <Box component="main" sx={{ flexGrow: 1, p: 0, minWidth: 0 }}>
         <DrawerHeader />
-        {props.children}
+          <Paper sx={{ boxShadow: "none", border: 'none',  borderRadius: 0 }}>
+            {props.children}
+          </Paper>
       </Box>
     </Box>
+    </ThemeProvider>
   );
 }

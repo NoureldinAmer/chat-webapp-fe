@@ -60,8 +60,7 @@ function Chat() {
         <Box
           sx={{
             width: "100%",
-            backgroundColor: "white",
-            boxShadow: 2
+            boxShadow: 4
           }}
           maxWidth="100%"
           p={2}
