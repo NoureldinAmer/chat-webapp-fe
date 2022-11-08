@@ -55,7 +55,9 @@ function ChatLog() {
             >
               <Box
                 justifyContent="end"
-                p={1.5}
+                p={1}
+                paddingLeft={1.5}
+                paddingRight={1.5}
                 bgcolor="#5B96F7"
                 sx={{
                   width: "max-content",
@@ -105,7 +107,9 @@ function ChatLog() {
             >
               <Box
                 justifyContent="start"
-                p={1.5}
+                p={1}
+                paddingLeft={1.5}
+                paddingRight={1.5}
                 sx={{
                   bgcolor: "lightgrey",
                   width: "max-content",

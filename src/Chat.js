@@ -73,7 +73,7 @@ function Chat() {
         <Box
           width={"100%"}
           maxWidth="100%"
-          height={"1000px"}
+          height={"100vh"}
           sx={{
             overflowY: "scroll",
             backdropFilter: "brightness(1.2)",
