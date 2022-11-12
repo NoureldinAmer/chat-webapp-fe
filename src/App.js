@@ -13,26 +13,24 @@ import { Paper } from "@mui/material";
 const ColorModeContext = createContext({ toggleColorMode: () => {} });
 
 function App() {
-
-
   return (
     //router
-      <Router>
-        <Paper sx={{ boxShadow: "none", border: 'none', borderRadius: 0 }}>
-          <Switch>
-            <Route path="/login" component={Login} />
-            <Paper sx={{ boxShadow: "none", border: 'none',  borderRadius: 0 }}>
-              <Navbar>
-                <Switch>
-                  <Route exact path="/" component={Chat} />
-                  <Route exact path="/settings" component={Settings} />
-                  <Route exact path="/history" component={ChatHistory} />
-                </Switch>
-              </Navbar>
-            </Paper>
-          </Switch>
-        </Paper>
-      </Router>
+    <Router>
+      <Paper sx={{ boxShadow: "none", border: "none", borderRadius: 0 }}>
+        <Switch>
+          <Route path="/login" component={Login} />
+          <Paper sx={{ boxShadow: "none", border: "none", borderRadius: 0 }}>
+            <Navbar>
+              <Switch>
+                <Route exact path="/" component={Chat} />
+                <Route exact path="/settings" component={Settings} />
+                <Route exact path="/history" component={ChatHistory} />
+              </Switch>
+            </Navbar>
+          </Paper>
+        </Switch>
+      </Paper>
+    </Router>
   );
 }
 

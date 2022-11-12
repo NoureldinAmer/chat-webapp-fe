@@ -18,6 +18,10 @@ import { GrSend } from "react-icons/gr";
 import data from "@emoji-mart/data";
 import Picker from "@emoji-mart/react";
 
+const MyFab = styled(Fab)(({ theme }) => ({
+  backgroundColor: theme.palette.mode === "dark" ? "#B2BAC2" : "#E0E0E0",
+}));
+
 const ChatTextField = ({ setEmojiPicker }) => {
   return (
     <TextField
@@ -103,7 +107,7 @@ function Chat() {
               <Picker data={data} onEmojiSelect={console.log} theme="light" perLine="8" />
             </Box>
             <ChatTextField setEmojiPicker={setEmojiPicker} />
-            <Fab
+            <MyFab
               sx={{
                 height: 48,
                 width: 48,
@@ -111,7 +115,7 @@ function Chat() {
               }}
             >
               <GrSend size={"25px"} />
-            </Fab>
+            </MyFab>
           </Stack>
         </Box>
       </Stack>
