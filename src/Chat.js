@@ -94,6 +94,7 @@ function Chat() {
           maxWidth="100%"
           p={2}
         >
+          <Stack direction={"column"}>
           <Stack direction={"row"} alignItems={"center"} spacing={3}>
             <Box
               sx={{
@@ -107,6 +108,7 @@ function Chat() {
               <Picker data={data} onEmojiSelect={console.log} theme="light" perLine="8" />
             </Box>
             <ChatTextField setEmojiPicker={setEmojiPicker} />
+            
             <MyFab
               sx={{
                 height: 48,
@@ -116,6 +118,10 @@ function Chat() {
             >
               <GrSend size={"25px"} />
             </MyFab>
+          </Stack>
+          <Typography variant="caption" paddingLeft={3}>
+            <strong>{"someone"}</strong> is typing
+          </Typography>
           </Stack>
         </Box>
       </Stack>
