@@ -2,32 +2,37 @@ import { faker } from "@faker-js/faker";
 
 export const Chat_History = [
   {
+    id: 0,
     type: "msg",
     message: "Hi 👋🏻, How are ya ?",
     incoming: true,
     outgoing: false,
-    msgOwner: faker.name.firstName()
+    msgOwner: faker.name.firstName(),
+    
   },
   {
     type: "msg",
     message: "Hi 👋 Panda, not bad, u ?",
     incoming: false,
     outgoing: true,
-    msgOwner: faker.name.firstName()
+    msgOwner: faker.name.firstName(),
+    id: 1,
   },
   {
     type: "msg",
     message: "Can you send me an abstarct image?",
     incoming: false,
     outgoing: true,
-    msgOwner: faker.name.firstName()
+    msgOwner: faker.name.firstName(),
+    id: 2,
   },
   {
     type: "msg",
     message: "Ya sure, sending you a pic",
     incoming: true,
     outgoing: false,
-    msgOwner: faker.name.firstName()
+    msgOwner: faker.name.firstName(),
+    id: 3,
   },
 
   {
@@ -35,14 +40,16 @@ export const Chat_History = [
     message: "Here You Go",
     incoming: true,
     outgoing: false,
-    msgOwner: faker.name.firstName()
+    msgOwner: faker.name.firstName(),
+    id: 4,
   },
   {
     type: "msg",
     message: "Can you please send this in file format?",
     incoming: false,
     outgoing: true,
-    msgOwner: faker.name.firstName()
+    msgOwner: faker.name.firstName(),
+    id: 5,
   },
 
   {
@@ -50,64 +57,85 @@ export const Chat_History = [
     message: "Yes sure, here you go.",
     incoming: true,
     outgoing: false,
-    msgOwner: faker.name.firstName()
+    msgOwner: faker.name.firstName(),
+    id: 6,
   },
   {
     type: "msg",
     message: "Yep, I can also do that",
     incoming: true,
     outgoing: false,
-    msgOwner: faker.name.firstName()
+    msgOwner: faker.name.firstName(),
+    id: 7,
   },
   {
     type: "msg",
     message: "Yep, I can also do that",
     incoming: false,
     outgoing: true,
-    msgOwner: faker.name.firstName()
+    msgOwner: faker.name.firstName(),
+    id: 8,
   },
   {
     type: "msg",
     message: "Hi 👋🏻, How are ya ?",
     incoming: true,
     outgoing: false,
-    msgOwner: faker.name.firstName()
+    msgOwner: faker.name.firstName(),
+    id: 9,
   },
   {
     type: "msg",
     message: "Hi 👋 Panda, not bad, u ?",
     incoming: false,
     outgoing: true,
-    msgOwner: faker.name.firstName()
+    msgOwner: faker.name.firstName(),
+    id: 10,
+  },
+  {
+    type: "connection",
+    user: "Jorge Masbidal",
+    connection: "disconnection",
+    id: 11,
   },
   {
     type: "msg",
     message: "Can you send me an abstarct image?",
     incoming: false,
     outgoing: true,
-    msgOwner: faker.name.firstName()
+    msgOwner: faker.name.firstName(),
+    id: 12,
+    
   },
   {
     type: "msg",
     message: "Ya sure, sending you a pic",
     incoming: true,
     outgoing: false,
-    msgOwner: faker.name.firstName()
+    msgOwner: faker.name.firstName(),
+    id: 13,
   },
-
+  {
+    type: "connection",
+    user: "Jorge Masbidal",
+    connection: "connection",
+    id: 14,
+  },
   {
     type: "msg",
     message: "Here You Go",
     incoming: true,
     outgoing: false,
-    msgOwner: faker.name.firstName()
+    msgOwner: faker.name.firstName(),
+    id: 15,
   },
   {
     type: "msg",
     message: "Can you please send this in file format? Can you please send this in file format? Can you please send this in file format? Can you please send this in file format? Can you please send this in file format? Can you please send this in file format?",
     incoming: false,
     outgoing: true,
-    msgOwner: faker.name.firstName()
+    msgOwner: faker.name.firstName(),
+    id: 16,
   },
 
   {
@@ -115,20 +143,23 @@ export const Chat_History = [
     message: "Yes sure, here you go.",
     incoming: true,
     outgoing: false,
-    msgOwner: faker.name.firstName()
+    msgOwner: faker.name.firstName(),
+    id: 17,
   },
   {
     type: "msg",
     message: "Yep, I can also do that",
     incoming: true,
     outgoing: false,
-    msgOwner: faker.name.firstName()
+    msgOwner: faker.name.firstName(),
+    id: 18,
   },
   {
     type: "msg",
     message: "Yep, I can also do that",
     incoming: false,
     outgoing: true,
-    msgOwner: faker.name.firstName()
+    msgOwner: faker.name.firstName(),
+    id: 19,
   },
 ];
