@@ -17,16 +17,21 @@ import SendIcon from "@mui/icons-material/Send";
 import { GrSend } from "react-icons/gr";
 import data from "@emoji-mart/data";
 import Picker from "@emoji-mart/react";
+import { socket } from "./socket";
 
 const MyFab = styled(Fab)(({ theme }) => ({
   backgroundColor: theme.palette.mode === "dark" ? "#B2BAC2" : "#E0E0E0",
 }));
 
-const ChatTextField = ({ setEmojiPicker }) => {
+const ChatTextField = ({ setEmojiPicker, setText, inputText }) => {
   return (
     <TextField
       fullWidth
-      placeholder="something"
+      value={inputText}
+      onChange={(event) => {
+        setText(event.target.value)
+      }}
+      placeholder="type your message here"
       variant="filled"
       sx={{
         "& .MuiInputBase-input": {
@@ -60,8 +65,14 @@ const ChatTextField = ({ setEmojiPicker }) => {
   );
 };
 
-function Chat() {
+function Chat({chatHistory}) {
   const [emojiPicker, setEmojiPicker] = useState(false);
+  const [inputText, setInputText] = useState("");
+  const [slideEnabled, setSlideEnabled] = useState(false);
+
+  const setText = (text) => {
+    setInputText(text);
+  }
 
 
   return (
@@ -83,7 +94,7 @@ function Chat() {
             backdropFilter: "brightness(1.2)",
           }}
         >
-          <ChatLog />
+          <ChatLog chatHistory={chatHistory} slideEnabled={slideEnabled}/>
         </Box>
 
         <Box
@@ -107,14 +118,25 @@ function Chat() {
             >
               <Picker data={data} onEmojiSelect={console.log} theme="light" perLine="8" />
             </Box>
-            <ChatTextField setEmojiPicker={setEmojiPicker} />
+            <ChatTextField setEmojiPicker={setEmojiPicker} setText={setText} inputText={inputText}/>
             
             <MyFab
+              disabled={inputText ? false : true}
               sx={{
                 height: 48,
                 width: 48,
                 borderRadius: 2.5,
               }}
+              onClick={() => {
+                socket.emit("new_message", {
+                  message: inputText,
+                  from: localStorage.getItem("userID"),
+                  type: "text"
+                })
+                setInputText("");
+                setSlideEnabled(true);
+              }
+              }
             >
               <GrSend size={"25px"} />
             </MyFab>

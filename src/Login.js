@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Avatar from "@mui/material/Avatar";
 import Button from "@mui/material/Button";
 import CssBaseline from "@mui/material/CssBaseline";
@@ -49,17 +49,51 @@ export default function Login() {
     scale: 100
   });
 
+  useEffect(() => {
+    //document.title = "Login | JobMatch";
+    const handleLogout = () => {
+      localStorage.removeItem("name");
+      localStorage.removeItem("userID");;
+    }
+
+    handleLogout()
+  }, []);
+
   const history = useHistory();
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
-    const data = new FormData(event.currentTarget);
-    console.log({
-      name: data.get("name"),
-    });
+    console.log(avatarSVG);
 
-    history.push("/");
+    let myHeaders = new Headers();
+    myHeaders.append("Content-Type", "application/json");
+    const data = {
+      name: name,
+      avatar: avatarSVG
+    }
+    const raw = JSON.stringify(data);
+
+    let requestOptions = {
+			url: `${process.env.REACT_APP_API_URL}/auth/login`,
+      method: 'POST',
+      headers: myHeaders,
+      body: raw,
+      redirect: 'follow'
+    };
+    const response = await fetch(`${process.env.REACT_APP_API_URL}/auth/login` , requestOptions);
+    if(response.status === 200) {
+      let result = await response.json();
+      localStorage.setItem('name', name);
+      //TODO => set userID
+      //localStorage.setItem('userID', result.login_details.ID);
+      history.push(history.push("/"));
+      //TODO => successful login snackbar
+    } else {
+      //TODO=>set error in snackbar
+    }
   };
+
+  
 
   return (
     <ThemeProvider theme={theme}>
