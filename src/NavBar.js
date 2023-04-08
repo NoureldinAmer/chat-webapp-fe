@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { createTheme, styled, useTheme } from "@mui/material/styles";
 import Box from "@mui/material/Box";
 import MuiDrawer from "@mui/material/Drawer";
@@ -18,12 +18,15 @@ import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";
 import { useHistory } from "react-router-dom";
 import { routes } from "./routes";
+import LogoutIcon from '@mui/icons-material/Logout';
+import { socket, connectSocket } from "./socket";
+import { formatDistanceToNowStrict } from 'date-fns';
 
 import DarkModeOutlinedIcon from "@mui/icons-material/DarkModeOutlined";
 import LightModeIcon from "@mui/icons-material/LightMode";
 import { ThemeProvider } from "@emotion/react";
 import { Paper } from "@mui/material";
-import { yellow } from "@mui/material/colors";
+
 
 const drawerWidth = 240;
 
@@ -113,10 +116,12 @@ const Drawer = styled(MuiDrawer, {
 
 export default function Navbar(props) {
   const [toolbarHeader, setToolbarHeader] = useState("Chat");
-  const [darkMode, setDarkMode] = useState(false);
+  const [darkMode, setDarkMode] = useState(true);
+  
+
   const history = useHistory();
 
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(true);
 
   const handleDrawerOpen = () => {
     setOpen(true);
@@ -125,6 +130,52 @@ export default function Navbar(props) {
   const handleDrawerClose = () => {
     setOpen(false);
   };
+
+  useEffect(() => {
+    const user_id = localStorage.getItem("userID")
+
+    if (!socket) {
+      console.log("no socket");
+      connectSocket(user_id);
+    } else {
+      console.log("socket connected");
+    }
+
+    socket.on("new_user", (data) => {
+      const newConnection = {
+        type: "connection",
+        user: data,
+        connection: "connection",
+        id: Date.now(),
+      };
+      props.addMessage(newConnection);
+      console.log(`${data} just arrived`)
+    })
+
+    socket.on("incoming_message", (data) => {
+      console.log(`${data} incoming`)
+      props.addMessage(data);
+    })
+
+    socket.on("outgoing_message", (data) => {
+      console.log(`${data} outgoing`)
+      props.addMessage(data);
+    })
+
+
+    // function updateRelativeDates() {
+    //   const updatedChatHistory = props.chatHistory.map((msg) => ({
+    //     ...msg,
+    //     relativeDate: formatDistanceToNowStrict(msg.date, { addSuffix: true }),
+    //   }));
+    //   props.setChatHistory(updatedChatHistory);
+    // }
+    // updateRelativeDates();
+
+    // // Periodically update relative dates every minute (60000 milliseconds)
+    // const intervalId = setInterval(updateRelativeDates, 60000);
+
+  }, []);
 
   const theme = useMemo(() =>
     createTheme({
@@ -173,7 +224,7 @@ export default function Navbar(props) {
             height: "64px",
             boxShadow: 2,
             bgcolor:
-              theme.palette.mode == "light"
+              theme.palette.mode === "light"
                 ? "secondary.light"
                 : "secondary.dark",
           }}
@@ -188,7 +239,7 @@ export default function Navbar(props) {
                 marginRight: 5,
                 ...(open && { display: "none" }),
                 color:
-                  theme.palette.mode == "light"
+                  theme.palette.mode === "light"
                     ? "sideBarIcons.light"
                     : "sideBarIcons.dark",
               }}
@@ -201,7 +252,7 @@ export default function Navbar(props) {
               component="div"
               sx={{
                 color:
-                  theme.palette.mode == "light"
+                  theme.palette.mode === "light"
                     ? "sideBarText.light"
                     : "sideBarText.dark",
               }}
@@ -218,11 +269,11 @@ export default function Navbar(props) {
           PaperProps={{
             sx: {
               bgcolor:
-                theme.palette.mode == "light"
+                theme.palette.mode === "light"
                   ? "secondary.light"
                   : "secondary.dark",
               color:
-                theme.palette.mode == "light"
+                theme.palette.mode === "light"
                   ? "sideBarText.light"
                   : "sideBarText.dark",
             },
@@ -241,6 +292,7 @@ export default function Navbar(props) {
           <List>
             {routes.map((route) => (
               <ListItem
+                key={route.title}
                 sx={{
                   display: "block",
                   
@@ -269,7 +321,7 @@ export default function Navbar(props) {
                     "&:hover": {
                       backgroundColor:
                         route.title === toolbarHeader
-                          ? theme.palette.mode == "light"
+                          ? theme.palette.mode === "light"
                             ? "sideBarText.hoverLight"
                             : "sideBarText.hoverDark"
                           : null,
@@ -285,10 +337,10 @@ export default function Navbar(props) {
                       justifyContent: "center",
                       color:
                         route.title === toolbarHeader
-                          ? theme.palette.mode == "light"
+                          ? theme.palette.mode === "light"
                             ? "sideBarIcons.selectedLight"
                             : "sideBarIcons.selectedDark"
-                          : theme.palette.mode == "light"
+                          : theme.palette.mode === "light"
                           ? "sideBarIcons.light"
                           : "sideBarIcons.dark",
                     }}
@@ -325,7 +377,7 @@ export default function Navbar(props) {
                     mr: open ? 3 : "auto",
                     justifyContent: "center",
                     color:
-                      theme.palette.mode == "light"
+                      theme.palette.mode === "light"
                         ? "sideBarIcons.light"
                         : "sideBarIcons.dark",
                   }}
@@ -334,6 +386,38 @@ export default function Navbar(props) {
                 </ListItemIcon>
                 <ListItemText
                   primary={darkMode ? "Dark mode" : "Light mode"}
+                  sx={{ opacity: open ? 1 : 0,  }}
+                  primaryTypographyProps={{fontFamily: "IBM Plex Sans", fontWeight: "650"}}
+                />
+              </ListItemButton>
+            </ListItem>
+            <ListItem key="signout" sx={{ display: "block" }}>
+              <ListItemButton
+                sx={{
+                  minHeight: 48,
+                  justifyContent: open ? "initial" : "center",
+                  px: 2.5,
+                  borderRadius: "10px",
+                }}
+                onClick={() => {
+                  history.push("./login");
+                }}
+              >
+                <ListItemIcon
+                  sx={{
+                    minWidth: 0,
+                    mr: open ? 3 : "auto",
+                    justifyContent: "center",
+                    color:
+                      theme.palette.mode === "light"
+                        ? "sideBarIcons.light"
+                        : "sideBarIcons.dark",
+                  }}
+                >
+                  <LogoutIcon />
+                </ListItemIcon>
+                <ListItemText
+                  primary={"Sign Out"}
                   sx={{ opacity: open ? 1 : 0,  }}
                   primaryTypographyProps={{fontFamily: "IBM Plex Sans", fontWeight: "650"}}
                 />
@@ -349,7 +433,7 @@ export default function Navbar(props) {
               border: "none",
               borderRadius: 0,
               backgroundColor:
-                theme.palette.mode == "light" ? "#e6e9ed" : "#0B1929",
+                theme.palette.mode === "light" ? "#e6e9ed" : "#0B1929",
             }}
           >
             {props.children}
