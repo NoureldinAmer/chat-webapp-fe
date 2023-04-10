@@ -3,7 +3,7 @@ import io from "socket.io-client";
 let socket;
 
 const connectSocket = (user_id) => {
-  socket = io("http://localhost:3000", {
+  socket = io(`${process.env.REACT_APP_API_URL}`, {
     query: `user_id=${user_id}`,
   }
   );

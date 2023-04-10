@@ -1,29 +1,70 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Box from "@mui/material/Box";
+//import { chat_log } from "./Mock_Data";
+import ChatLog from "./ChatLog";
+import { useHistory } from "react-router-dom";
 
-function ChatHistory() {
+function ChatHistory({addNavbarHeader}) {
+  const [chatLog, setChatLog] = useState([]);
+  const history = useHistory();
+
+  useEffect(() => {
+    if (!localStorage.getItem("userID")) {
+      history.push("./login");
+    } else {
+      addNavbarHeader("Chat history")
+      const getChatHistory = async () => {
+        let myHeaders = new Headers();
+        myHeaders.append("Content-Type", "application/json");
+        myHeaders.append(
+          "authorization",
+          `Bearer ${localStorage.getItem("userID")}`
+        );
+
+        let requestOptions = {
+          url: `${process.env.REACT_APP_API_URL}/user/chat_log`,
+          method: "GET",
+          headers: myHeaders,
+          redirect: "follow",
+        };
+        const response = await fetch(
+          `${process.env.REACT_APP_API_URL}/user/chat_log`,
+          requestOptions
+        );
+        if (response.status === 200) {
+          const result = await response.json();
+
+          const transformedData = result.chat_log.map((item, index) => {
+            const date = item.created_at;
+            return {
+              id: item._id,
+              type: item.type,
+              message: item.text,
+              msgOwner: localStorage.getItem("name"),
+              msgOwnerID: item.from,
+              date,
+            };
+          });
+
+          setChatLog(transformedData);
+        }
+      };
+
+      getChatHistory();
+    }
+  }, []);
+
   return (
     <Box
+      width={"100%"}
+      maxWidth="100%"
+      height={"100vh"}
       sx={{
-        width: "100%",
-        backgroundColor: "primary.dark",
-        "&:hover": {
-          backgroundColor: "primary.main",
-        },
+        overflowY: "scroll",
+        backdropFilter: "brightness(1.2)",
       }}
     >
-      Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod
-      tempor incididunt ut labore et dolore magna aliqua. Rhoncus dolor purus
-      non enim praesent elementum facilisis leo vel. Risus at ultrices mi tempus
-      imperdiet. Semper risus in hendrerit gravida rutrum quisque non tellus.
-      Convallis convallis tellus id interdum velit laoreet id donec ultrices.
-      Odio morbi quis commodo odio aenean sed adipiscing. Amet nisl suscipit
-      adipiscing bibendum est ultricies integer quis. Cursus euismod quis
-      viverra nibh cras. Metus vulputate eu scelerisque felis imperdiet proin
-      fermentum leo. Mauris commodo quis imperdiet massa tincidunt. Cras
-      tincidunt lobortis feugiat vivamus at augue. At augue eget arcu dictum
-      varius duis at consectetur lorem. Velit sed ullamcorper morbi tincidunt.
-      Lorem donec massa sapien faucibus et molestie ac.
+      <ChatLog chatHistory={chatLog} slideEnabled={false} />
     </Box>
   );
 }

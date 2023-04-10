@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { createTheme, styled, useTheme } from "@mui/material/styles";
 import Box from "@mui/material/Box";
 import {
@@ -18,6 +18,17 @@ import { GrSend } from "react-icons/gr";
 import data from "@emoji-mart/data";
 import Picker from "@emoji-mart/react";
 import { socket } from "./socket";
+import { useHistory } from "react-router-dom";
+
+const isMobileDevice = () => {
+  return (
+    typeof window.orientation !== "undefined" ||
+    navigator.userAgent.indexOf("IEMobile") !== -1 ||
+    /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+      navigator.userAgent
+    )
+  );
+};
 
 const MyFab = styled(Fab)(({ theme }) => ({
   backgroundColor: theme.palette.mode === "dark" ? "#B2BAC2" : "#E0E0E0",
@@ -29,10 +40,21 @@ const ChatTextField = ({ setEmojiPicker, setText, inputText }) => {
       fullWidth
       value={inputText}
       onChange={(event) => {
-        setText(event.target.value)
+        setText(event.target.value);
+      }}
+      onKeyDown={(event) => {
+        if (event.key === "Enter") {
+          socket.emit("new_message", {
+            message: inputText,
+            from: localStorage.getItem("userID"),
+            type: "text",
+          });
+          setText("");
+        }
       }}
       placeholder="type your message here"
       variant="filled"
+      autoComplete="off"
       sx={{
         "& .MuiInputBase-input": {
           paddingTop: "12px",
@@ -41,14 +63,6 @@ const ChatTextField = ({ setEmojiPicker, setText, inputText }) => {
       }}
       InputProps={{
         disableUnderline: true,
-        startAdornment: (
-          <InputAdornment>
-            <IconButton aria-label="upload picture" component="label">
-              <input hidden accept="image/*" type="file" />
-              <AddCircleOutlinedIcon />
-            </IconButton>
-          </InputAdornment>
-        ),
         endAdornment: (
           <InputAdornment>
             <IconButton
@@ -65,37 +79,55 @@ const ChatTextField = ({ setEmojiPicker, setText, inputText }) => {
   );
 };
 
-function Chat({chatHistory}) {
+function Chat({ chatHistory, addNavbarHeader }) {
   const [emojiPicker, setEmojiPicker] = useState(false);
   const [inputText, setInputText] = useState("");
   const [slideEnabled, setSlideEnabled] = useState(false);
+  const history = useHistory();
+
+
+
+  useEffect(() => {
+    if(!localStorage.getItem('userID')) {
+      history.push('./login');
+    }
+    addNavbarHeader("Chat");
+  }, [])
 
   const setText = (text) => {
     setInputText(text);
-  }
+  };
 
+  const handleEmojiSelect = (event) => {
+    setEmojiPicker(false);
+    socket.emit("new_message", {
+      message: event.native,
+      from: localStorage.getItem("userID"),
+      type: "sticker",
+    });
+  }
+  
+
+  
 
   return (
-    <Box
+    <Stack
       sx={{
         width: "100%",
         maxWidth: "100%",
-        height: "calc(100vh - 64px)",
-        maxHeight: "calc(100vh - 64px)",
+        height: isMobileDevice() ? "87vh" : "calc(100vh - 64px)",
+        maxHeight: isMobileDevice() ? "87vh" : "calc(100vh - 64px)",
+        overflow: "hidden",
+        "@media (max-width: 600px)": {
+          height: "calc(100vh - 160px)",
+          maxHeight: "calc(100vh - 160px)",
+          overflow: "hidden",
+        },
       }}
     >
-      <Stack minWidth="0" maxHeight={"calc(100vh - 64px)"} maxWidth="100%">
-        <Box
-          width={"100%"}
-          maxWidth="100%"
-          height={"100vh"}
-          sx={{
-            overflowY: "scroll",
-            backdropFilter: "brightness(1.2)",
-          }}
-        >
-          <ChatLog chatHistory={chatHistory} slideEnabled={slideEnabled}/>
-        </Box>
+      <Stack minWidth="0" maxHeight={"100%"} maxWidth="100%">
+        <ChatLog chatHistory={chatHistory} slideEnabled={slideEnabled} />
+        
 
         <Box
           sx={{
@@ -104,9 +136,9 @@ function Chat({chatHistory}) {
           }}
           maxWidth="100%"
           p={2}
+          paddingBottom={isMobileDevice() ? 3 : null}
         >
-          <Stack direction={"column"}>
-          <Stack direction={"row"} alignItems={"center"} spacing={3}>
+          <Stack direction={"row"} alignItems={"center"} spacing={3} sx={{}}>
             <Box
               sx={{
                 display: emojiPicker ? "inline" : "none",
@@ -116,10 +148,23 @@ function Chat({chatHistory}) {
                 right: 90,
               }}
             >
-              <Picker data={data} onEmojiSelect={console.log} theme="light" perLine="8" />
+              <Picker
+                data={data}
+                theme="light"
+                perLine={isMobileDevice() ? 4 : 8}
+                searchPosition="none"
+                previewPosition="none"
+                navPosition="none"
+                emojiButtonSize={40}
+                onEmojiSelect={handleEmojiSelect}
+              />
             </Box>
-            <ChatTextField setEmojiPicker={setEmojiPicker} setText={setText} inputText={inputText}/>
-            
+            <ChatTextField
+              setEmojiPicker={setEmojiPicker}
+              setText={setText}
+              inputText={inputText}
+            />
+
             <MyFab
               disabled={inputText ? false : true}
               sx={{
@@ -131,23 +176,18 @@ function Chat({chatHistory}) {
                 socket.emit("new_message", {
                   message: inputText,
                   from: localStorage.getItem("userID"),
-                  type: "text"
-                })
+                  type: "text",
+                });
                 setInputText("");
                 setSlideEnabled(true);
-              }
-              }
+              }}
             >
               <GrSend size={"25px"} />
             </MyFab>
           </Stack>
-          <Typography variant="caption" paddingLeft={3}>
-            <strong>{"someone"}</strong> is typing
-          </Typography>
-          </Stack>
         </Box>
       </Stack>
-    </Box>
+    </Stack>
   );
 }
 

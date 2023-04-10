@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { createTheme, styled, useTheme } from "@mui/material/styles";
+import { createTheme, styled } from "@mui/material/styles";
 import Box from "@mui/material/Box";
 import MuiDrawer from "@mui/material/Drawer";
 import MuiAppBar from "@mui/material/AppBar";
@@ -20,12 +20,21 @@ import { useHistory } from "react-router-dom";
 import { routes } from "./routes";
 import LogoutIcon from '@mui/icons-material/Logout';
 import { socket, connectSocket } from "./socket";
-import { formatDistanceToNowStrict } from 'date-fns';
 
 import DarkModeOutlinedIcon from "@mui/icons-material/DarkModeOutlined";
 import LightModeIcon from "@mui/icons-material/LightMode";
 import { ThemeProvider } from "@emotion/react";
 import { Paper } from "@mui/material";
+
+const isMobileDevice = () => {
+  return (
+    typeof window.orientation !== "undefined" ||
+    navigator.userAgent.indexOf("IEMobile") !== -1 ||
+    /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+      navigator.userAgent
+    )
+  );
+};
 
 
 const drawerWidth = 240;
@@ -50,25 +59,6 @@ const closedMixin = (theme) => ({
     width: `calc(${theme.spacing(8)} + 1px)`,
   },
 });
-
-const Main = styled("main", { shouldForwardProp: (prop) => prop !== "open" })(
-  ({ theme, open }) => ({
-    flexGrow: 1,
-    padding: theme.spacing(3),
-    transition: theme.transitions.create("margin", {
-      easing: theme.transitions.easing.sharp,
-      duration: theme.transitions.duration.leavingScreen,
-    }),
-    marginLeft: `-${drawerWidth}px`,
-    ...(open && {
-      transition: theme.transitions.create("margin", {
-        easing: theme.transitions.easing.easeOut,
-        duration: theme.transitions.duration.enteringScreen,
-      }),
-      marginLeft: 0,
-    }),
-  })
-);
 
 const DrawerHeader = styled("div")(({ theme }) => ({
   display: "flex",
@@ -116,12 +106,14 @@ const Drawer = styled(MuiDrawer, {
 
 export default function Navbar(props) {
   const [toolbarHeader, setToolbarHeader] = useState("Chat");
-  const [darkMode, setDarkMode] = useState(true);
+  const [darkMode, setDarkMode] = useState(
+    localStorage.getItem("darkmode") === "true" ? true : false
+  );
   
 
   const history = useHistory();
 
-  const [open, setOpen] = useState(true);
+  const [open, setOpen] = useState(isMobileDevice() ? false : true);
 
   const handleDrawerOpen = () => {
     setOpen(true);
@@ -132,50 +124,43 @@ export default function Navbar(props) {
   };
 
   useEffect(() => {
-    const user_id = localStorage.getItem("userID")
+    const user_id = localStorage.getItem("userID");
+    connectSocket(user_id);
 
-    if (!socket) {
-      console.log("no socket");
-      connectSocket(user_id);
-    } else {
-      console.log("socket connected");
-    }
-
-    socket.on("new_user", (data) => {
-      const newConnection = {
-        type: "connection",
-        user: data,
-        connection: "connection",
-        id: Date.now(),
-      };
-      props.addMessage(newConnection);
-      console.log(`${data} just arrived`)
+    socket.on("user_connection", (data) => {
+      // if(data.userID !== localStorage.getItem('userID')) {
+      //   props.addMessage(data);
+      // }
+      props.addMessage(data);
     })
 
     socket.on("incoming_message", (data) => {
-      console.log(`${data} incoming`)
       props.addMessage(data);
     })
 
-    socket.on("outgoing_message", (data) => {
-      console.log(`${data} outgoing`)
-      props.addMessage(data);
+    socket.on("chat_log", (data) => {
+      const transformedData = data.map((item, index) => {
+        const date = item.created_at 
+        return {
+          id: item._id,
+          type: item.type,
+          message: item.text,
+          msgOwner: item.from.name,
+          msgOwnerID: item.from._id,
+          date
+        };
+      })
+      props.addChatLog(transformedData)
     })
-
-
-    // function updateRelativeDates() {
-    //   const updatedChatHistory = props.chatHistory.map((msg) => ({
-    //     ...msg,
-    //     relativeDate: formatDistanceToNowStrict(msg.date, { addSuffix: true }),
-    //   }));
-    //   props.setChatHistory(updatedChatHistory);
-    // }
-    // updateRelativeDates();
-
-    // // Periodically update relative dates every minute (60000 milliseconds)
-    // const intervalId = setInterval(updateRelativeDates, 60000);
-
   }, []);
+
+  useEffect(() => {
+    localStorage.setItem("darkmode", darkMode);
+  }, [darkMode])
+
+  useEffect(() => {
+    setToolbarHeader(props.navbarHeader);
+  }, [props.navbarHeader]);
 
   const theme = useMemo(() =>
     createTheme({
@@ -215,7 +200,7 @@ export default function Navbar(props) {
 
   return (
     <ThemeProvider theme={theme}>
-      <Box sx={{ display: "flex", minWidth: "500px",  }} >
+      <Box sx={{ display: "flex", minWidth: "400px",  }} >
         <CssBaseline />
         <AppBar
           position="fixed"
@@ -236,6 +221,7 @@ export default function Navbar(props) {
               onClick={handleDrawerOpen}
               edge="start"
               sx={{
+                display: isMobileDevice() ? "none" : null,
                 marginRight: 5,
                 ...(open && { display: "none" }),
                 color:
@@ -299,7 +285,6 @@ export default function Navbar(props) {
                 }}
                 onClick={() => {
                   history.push(route.link);
-                  setToolbarHeader(route.title);
                 }}
               >
                 <ListItemButton
@@ -368,7 +353,6 @@ export default function Navbar(props) {
                 }}
                 onClick={() => {
                   setDarkMode(!darkMode);
-                  console.log(theme);
                 }}
               >
                 <ListItemIcon
@@ -431,9 +415,10 @@ export default function Navbar(props) {
             sx={{
               boxShadow: "none",
               border: "none",
+              margin: 0,
               borderRadius: 0,
               backgroundColor:
-                theme.palette.mode === "light" ? "#e6e9ed" : "#0B1929",
+                theme.palette.mode === "light" ? "color" : "#0B1929",
             }}
           >
             {props.children}

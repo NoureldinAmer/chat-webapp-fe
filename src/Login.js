@@ -17,6 +17,7 @@ import { Alert } from "@mui/material";
 import { createAvatar } from '@dicebear/avatars';
 import * as style from '@dicebear/avatars-avataaars-sprites';
 import SVG from 'react-inlinesvg';
+import { socket } from "./socket";
 
 
 function Copyright(props) {
@@ -50,10 +51,12 @@ export default function Login() {
   });
 
   useEffect(() => {
-    //document.title = "Login | JobMatch";
     const handleLogout = () => {
       localStorage.removeItem("name");
       localStorage.removeItem("userID");;
+    }
+    if(socket) {
+      socket.disconnect();
     }
 
     handleLogout()
@@ -63,13 +66,11 @@ export default function Login() {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    console.log(avatarSVG);
 
     let myHeaders = new Headers();
     myHeaders.append("Content-Type", "application/json");
     const data = {
-      name: name,
-      avatar: avatarSVG
+      name,
     }
     const raw = JSON.stringify(data);
 
@@ -84,10 +85,9 @@ export default function Login() {
     if(response.status === 200) {
       let result = await response.json();
       localStorage.setItem('name', name);
-      //TODO => set userID
-      //localStorage.setItem('userID', result.login_details.ID);
+      localStorage.setItem('userID', result.userID);
       history.push(history.push("/"));
-      //TODO => successful login snackbar
+      // //TODO => successful login snackbar
     } else {
       //TODO=>set error in snackbar
     }
@@ -132,6 +132,7 @@ export default function Login() {
               label="Name"
               name="name"
               autoFocus
+              autoComplete="off"
               onChange={(e) => setName(e.target.value)}
             />
             <Button

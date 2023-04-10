@@ -1,4 +1,4 @@
-import React, { createContext, useMemo, useState } from "react";
+import React, { createContext, useEffect, useMemo, useState } from "react";
 import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
 import Chat from "./Chat";
 import Settings from "./Settings";
@@ -15,10 +15,17 @@ const ColorModeContext = createContext({ toggleColorMode: () => {} });
 
 function App() {
   const [chatHistory, setChatHistory] = useState([]);
+  const [navbarHeader, setNavbarHeader] = useState(null);
+  const addNavbarHeader = (title) => {
+    setNavbarHeader(title);
+  }
+
   const addMessage = (message) => {
-    //console.log(message);
     setChatHistory((prevMessages) => [...prevMessages, message]);
-    //console.log(chatHistory);
+  }
+
+  const addChatLog = (messages) => {
+    setChatHistory(messages)
   }
 
   return (
@@ -28,17 +35,22 @@ function App() {
         <Switch>
           <Route path="/login" component={Login} />
           <Paper sx={{ boxShadow: "none", border: "none", borderRadius: 0 }}>
-            <Navbar addMessage={addMessage}>
+            <Navbar addMessage={addMessage} addChatLog={addChatLog} navbarHeader={navbarHeader} >
               <Switch>
                 <Route
-                  exact
-                  path="/"
+                  exact path="/"
                   render={(props) => (
-                    <Chat chatHistory={chatHistory} {...props} />
+                    <Chat chatHistory={chatHistory} addNavbarHeader={addNavbarHeader} {...props} />
                   )}
                 />
-                <Route exact path="/settings" component={Settings} />
-                <Route exact path="/history" component={ChatHistory} />
+                {/* <Route exact path="/settings" component={Settings} /> */}
+                {/* <Route exact path="/history" component={ChatHistory} /> */}
+                <Route
+                  exact path="/history"
+                  render={(props) => (
+                    <ChatHistory addNavbarHeader={addNavbarHeader} {...props} />
+                  )}
+                />
               </Switch>
             </Navbar>
           </Paper>

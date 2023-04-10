@@ -9,11 +9,11 @@ export const routes = [
     link: "/",
     icon: <ChatIcon />
   },
-  {
-    title: "Settings",
-    link: "/settings",
-    icon: <SettingsIcon />
-  },
+  // {
+  //   title: "Settings",
+  //   link: "/settings",
+  //   icon: <SettingsIcon />
+  // },
   {
     title: "Chat history",
     link: "/history",
