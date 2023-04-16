@@ -9,6 +9,7 @@ function ChatHistory({addNavbarHeader}) {
   const history = useHistory();
 
   useEffect(() => {
+    document.title =  "History"
     if (!localStorage.getItem("userID")) {
       history.push("./login");
     } else {

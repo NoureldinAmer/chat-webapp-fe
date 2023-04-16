@@ -9,7 +9,7 @@ import IconButton from "@mui/material/IconButton";
 import Box from "@mui/material/Box";
 import { createTheme, ThemeProvider } from "@mui/system";
 import { Paper } from "@mui/material";
-import { Chat_History } from "./Mock_Data";
+import ErrorPage from "./ErrorPage";
 
 const ColorModeContext = createContext({ toggleColorMode: () => {} });
 
@@ -50,6 +50,11 @@ function App() {
                   render={(props) => (
                     <ChatHistory addNavbarHeader={addNavbarHeader} {...props} />
                   )}
+                />
+                <Route
+                  exact
+                  path="*"
+                  render={(props) => <ErrorPage addNavbarHeader={addNavbarHeader} {...props} />}
                 />
               </Switch>
             </Navbar>
