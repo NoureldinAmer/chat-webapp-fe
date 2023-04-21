@@ -15,15 +15,17 @@ import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import ListItem from "@mui/material/ListItem";
 import ListItemButton from "@mui/material/ListItemButton";
 import ListItemIcon from "@mui/material/ListItemIcon";
+import CallIcon from "@mui/icons-material/Call";
 import ListItemText from "@mui/material/ListItemText";
 import { useHistory } from "react-router-dom";
 import { routes } from "./routes";
-import LogoutIcon from '@mui/icons-material/Logout';
+import LogoutIcon from "@mui/icons-material/Logout";
 import { socket, connectSocket } from "./socket";
 
 import DarkModeOutlinedIcon from "@mui/icons-material/DarkModeOutlined";
 import LightModeIcon from "@mui/icons-material/LightMode";
 import { ThemeProvider } from "@emotion/react";
+import IncomingCall from "./Components/IncomingCall";
 import { Paper } from "@mui/material";
 
 const isMobileDevice = () => {
@@ -35,7 +37,6 @@ const isMobileDevice = () => {
     )
   );
 };
-
 
 const drawerWidth = 240;
 
@@ -106,10 +107,12 @@ const Drawer = styled(MuiDrawer, {
 
 export default function Navbar(props) {
   const [toolbarHeader, setToolbarHeader] = useState("Chat");
+  const [openModal, setOpenModal] = useState(false);
+  const [modalName, setModalName] = useState(null);
+  const [incomingCall, setIncomingCall] = useState(null);
   const [darkMode, setDarkMode] = useState(
     localStorage.getItem("darkmode") === "true" ? true : false
   );
-  
 
   const history = useHistory();
 
@@ -123,40 +126,57 @@ export default function Navbar(props) {
     setOpen(false);
   };
 
+  const handleCloseModal = () => {
+    setOpenModal(false);
+  };
+
   useEffect(() => {
     const user_id = localStorage.getItem("userID");
     connectSocket(user_id);
 
     socket.on("user_connection", (data) => {
-      // if(data.userID !== localStorage.getItem('userID')) {
-      //   props.addMessage(data);
-      // }
       props.addMessage(data);
-    })
+    });
 
     socket.on("incoming_message", (data) => {
       props.addMessage(data);
-    })
+    });
+
+    socket.on("incoming_call", (data) => {
+      console.log(data);
+      if (data.userID === localStorage.getItem("userID")) {
+        setIncomingCall(false);
+        setModalName("Me");
+      } else {
+        setIncomingCall(true);
+        setModalName(data.name);
+      }
+      setOpenModal(true);
+    });
 
     socket.on("chat_log", (data) => {
       const transformedData = data.map((item, index) => {
-        const date = item.created_at 
-        return {
+        const date = item.created_at;
+        const message = {
           id: item._id,
           type: item.type,
           message: item.text,
           msgOwner: item.from.name,
           msgOwnerID: item.from._id,
-          date
+          date,
         };
-      })
-      props.addChatLog(transformedData)
-    })
+        if (item.link) {
+          message.link = item.link;
+        }
+        return message;
+      });
+      props.addChatLog(transformedData);
+    });
   }, []);
 
   useEffect(() => {
     localStorage.setItem("darkmode", darkMode);
-  }, [darkMode])
+  }, [darkMode]);
 
   useEffect(() => {
     setToolbarHeader(props.navbarHeader);
@@ -200,7 +220,13 @@ export default function Navbar(props) {
 
   return (
     <ThemeProvider theme={theme}>
-      <Box sx={{ display: "flex", minWidth: "400px",  }} >
+      <IncomingCall
+        openModal={openModal}
+        handleCloseModal={handleCloseModal}
+        modalName={modalName}
+        incomingCall={incomingCall}
+      />
+      <Box sx={{ display: "flex", minWidth: "400px" }}>
         <CssBaseline />
         <AppBar
           position="fixed"
@@ -237,6 +263,7 @@ export default function Navbar(props) {
               noWrap
               component="div"
               sx={{
+                flexGrow: 1,
                 color:
                   theme.palette.mode === "light"
                     ? "sideBarText.light"
@@ -247,6 +274,17 @@ export default function Navbar(props) {
             >
               {toolbarHeader}
             </Typography>
+            {toolbarHeader === "Chat" && (
+              <IconButton
+                onClick={() => {
+                  socket.emit("new_call", {
+                    from: localStorage.getItem("userID"),
+                  });
+                }}
+              >
+                <CallIcon />
+              </IconButton>
+            )}
           </Toolbar>
         </AppBar>
         <Drawer
@@ -281,7 +319,6 @@ export default function Navbar(props) {
                 key={route.title}
                 sx={{
                   display: "block",
-                  
                 }}
                 onClick={() => {
                   history.push(route.link);
@@ -334,8 +371,11 @@ export default function Navbar(props) {
                   </ListItemIcon>
                   <ListItemText
                     primary={route.title}
-                    sx={{ opacity: open ? 1 : 0,  }}
-                    primaryTypographyProps={{fontFamily: "IBM Plex Sans", fontWeight: "650"}}
+                    sx={{ opacity: open ? 1 : 0 }}
+                    primaryTypographyProps={{
+                      fontFamily: "IBM Plex Sans",
+                      fontWeight: "650",
+                    }}
                   />
                 </ListItemButton>
               </ListItem>
@@ -370,8 +410,11 @@ export default function Navbar(props) {
                 </ListItemIcon>
                 <ListItemText
                   primary={darkMode ? "Dark mode" : "Light mode"}
-                  sx={{ opacity: open ? 1 : 0,  }}
-                  primaryTypographyProps={{fontFamily: "IBM Plex Sans", fontWeight: "650"}}
+                  sx={{ opacity: open ? 1 : 0 }}
+                  primaryTypographyProps={{
+                    fontFamily: "IBM Plex Sans",
+                    fontWeight: "650",
+                  }}
                 />
               </ListItemButton>
             </ListItem>
@@ -402,8 +445,11 @@ export default function Navbar(props) {
                 </ListItemIcon>
                 <ListItemText
                   primary={"Sign Out"}
-                  sx={{ opacity: open ? 1 : 0,  }}
-                  primaryTypographyProps={{fontFamily: "IBM Plex Sans", fontWeight: "650"}}
+                  sx={{ opacity: open ? 1 : 0 }}
+                  primaryTypographyProps={{
+                    fontFamily: "IBM Plex Sans",
+                    fontWeight: "650",
+                  }}
                 />
               </ListItemButton>
             </ListItem>
