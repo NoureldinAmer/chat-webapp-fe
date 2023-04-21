@@ -1,10 +1,14 @@
 import React, { useRef, useEffect } from "react";
-import { formatDistanceToNowStrict } from "date-fns";
-import { Avatar, Box, Slide, Stack, Typography } from "@mui/material";
+import { Box, Stack } from "@mui/material";
 import { createAvatar } from "@dicebear/avatars";
 import * as style from "@dicebear/avatars-avataaars-sprites";
-import SVG from "react-inlinesvg";
-import styled from "@emotion/styled";
+import Connection from "./Components/Connection";
+import OutgoingText from "./Components/Text/Outgoing";
+import IncomingText from "./Components/Text/Incoming";
+import IncomingSticker from "./Components/Sticker/IncomingSticker";
+import OutgoingSticker from "./Components/Sticker/OutgoingSticker";
+import { IncomingLink } from "./Components/Link/Incoming";
+import { OutgoingLink } from "./Components/Link/Outgoing";
 
 function getProfilePic(name) {
   return createAvatar(style, {
@@ -14,28 +18,25 @@ function getProfilePic(name) {
   });
 }
 
-const CustomBox = styled(Box)(({ theme }) => ({
-  borderColor: theme.palette.mode === "dark" ? "#303C48" : "#D3D3D3",
-}));
-
 function ChatLog({ chatHistory, slideEnabled }) {
   let userID = localStorage.getItem("userID");
 
   const scrollRef = useRef(null);
+  const chatContainerRef = useRef(null);
+
   const scrollToBottom = () => {
     scrollRef.current?.scrollIntoView({ behavior: "smooth" });
   };
   const scrollToBottomAuto = () => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    }
     setTimeout(() => {
       if (scrollRef.current) {
         scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
       }
-    });
+    }, 1000);
   };
-
-  // useEffect(() => {
-  //   scrollToBottomAuto();
-  // }, []);
 
   useEffect(() => {
     scrollToBottom();
@@ -75,432 +76,67 @@ function ChatLog({ chatHistory, slideEnabled }) {
             timeDifference < 300000; //difference between messages is < 5 mins
           if (elm.type === "sticker") {
             return elm.msgOwnerID === userID ? (
-              <Slide
+              <OutgoingSticker
                 key={index}
-                in={true}
-                timeout={slideEnabled ? 300 : 0}
-                direction={"up"}
-              >
-                <Stack direction={"column"} key={`${elm.id}`}>
-                  <Stack
-                    direction="row"
-                    justifyContent="end"
-                    alignItems={"center"}
-                    spacing={0.4}
-                    display={shouldHide ? "none" : null}
-                    marginTop={2}
-                    p={0}
-                  >
-                    <Avatar
-                      sx={{
-                        mr: 1,
-                        width: "20px",
-                        height: "20px",
-                        bgcolor: "rgba(256,256,256, 1)",
-                      }}
-                    >
-                      <SVG src={avatarSVG} />
-                    </Avatar>
-                    <Typography variant="caption" fontWeight={550}>
-                      {elm.msgOwner}
-                    </Typography>
-                    <Typography
-                      variant="caption"
-                      fontSize={21}
-                      fontWeight={900}
-                    >
-                      &#183;
-                    </Typography>
-                    <Typography variant="caption" color={"#8A898E"}>
-                      {Date.now() - date < 60
-                        ? "now"
-                        : formatDistanceToNowStrict(date, { addSuffix: true })}
-                    </Typography>
-                  </Stack>
-                  <Stack
-                    direction="row"
-                    justifyContent="end"
-                    alignItems={"center"}
-                    spacing={1.5}
-                  >
-                    <span
-                      style={{
-                        fontSize: "6rem",
-                        padding: 0,
-                        lineHeight: "1",
-                        userSelect: "none",
-                        WebkitUserSelect: "none",
-                        MozUserSelect: "none",
-                        msUserSelect: "none",
-                      }}
-                    >
-                      {elm.message}
-                    </span>
-                  </Stack>
-                </Stack>
-              </Slide>
+                slideEnabled={slideEnabled}
+                date={date}
+                avatarSVG={avatarSVG}
+                shouldHide={shouldHide}
+                elm={elm}
+              />
             ) : (
-              <Slide
+              <IncomingSticker
                 key={index}
-                in={true}
-                timeout={slideEnabled ? 300 : 0}
-                direction={"up"}
-              >
-                <Stack direction={"column"} key={elm.id}>
-                  <Stack
-                    direction="row"
-                    justifyContent="start"
-                    alignItems={"center"}
-                    display={shouldHide ? "none" : null}
-                    spacing={0.5}
-                  >
-                    <Avatar
-                      sx={{
-                        m: 1,
-                        width: "20px",
-                        height: "20px",
-                        bgcolor: "rgba(256,256,256, 1)",
-                      }}
-                    >
-                      <SVG src={avatarSVG} />
-                    </Avatar>
-                    <Typography variant="caption" fontWeight={550}>
-                      {elm.msgOwner}
-                    </Typography>
-                    <Typography
-                      variant="caption"
-                      fontSize={21}
-                      fontWeight={900}
-                    >
-                      &#183;
-                    </Typography>
-                    <Typography variant="caption" color={"#8A898E"}>
-                      {Date.now() - date < 60
-                        ? "now"
-                        : formatDistanceToNowStrict(date, { addSuffix: true })}
-                    </Typography>
-                  </Stack>
-                  <Stack
-                    direction="row"
-                    justifyContent="start"
-                    alignItems={"center"}
-                    spacing={1.5}
-                  >
-                    <span
-                      style={{
-                        fontSize: "6rem",
-                        padding: 0,
-                        lineHeight: "1",
-                        userSelect: "none",
-                        WebkitUserSelect: "none",
-                        MozUserSelect: "none",
-                        msUserSelect: "none",
-                      }}
-                    >
-                      {elm.message}
-                    </span>
-                  </Stack>
-                </Stack>
-              </Slide>
+                slideEnabled={slideEnabled}
+                date={date}
+                avatarSVG={avatarSVG}
+                shouldHide={shouldHide}
+                elm={elm}
+              />
             );
           } else if (elm.type === "text") {
             return elm.msgOwnerID === userID ? (
-              <Slide
+              <OutgoingText
                 key={index}
-                in={true}
-                timeout={slideEnabled ? 300 : 0}
-                direction={"up"}
-              >
-                <Stack direction={"column"} key={`${elm.id}`}>
-                  <Stack
-                    direction="row"
-                    justifyContent="end"
-                    alignItems={"center"}
-                    spacing={0.4}
-                    display={shouldHide ? "none" : null}
-                    marginTop={2}
-                  >
-                    <Avatar
-                      sx={{
-                        m: 1,
-                        width: "20px",
-                        height: "20px",
-                        bgcolor: "rgba(256,256,256, 1)",
-                      }}
-                    >
-                      <SVG src={avatarSVG} />
-                    </Avatar>
-                    <Typography variant="caption" fontWeight={550}>
-                      {elm.msgOwner}
-                    </Typography>
-                    <Typography
-                      variant="caption"
-                      fontSize={21}
-                      fontWeight={900}
-                    >
-                      &#183;
-                    </Typography>
-                    <Typography variant="caption" color={"#8A898E"}>
-                      {Date.now() - date < 60
-                        ? "now"
-                        : formatDistanceToNowStrict(date, { addSuffix: true })}
-                    </Typography>
-                  </Stack>
-                  <Stack
-                    direction="row"
-                    justifyContent="end"
-                    alignItems={"center"}
-                    spacing={1.5}
-                  >
-                    <Box
-                      justifyContent="end"
-                      p={1}
-                      paddingLeft={1.5}
-                      paddingRight={1.5}
-                      bgcolor="#5B96F7"
-                      sx={{
-                        width: "max-content",
-                        borderRadius: "16px",
-                        maxWidth: "50%",
-                      }}
-                    >
-                      <Typography sx={{ color: "white" }} fontFamily={"SF pro"}>
-                        {elm.message}
-                      </Typography>
-                    </Box>
-                  </Stack>
-                </Stack>
-              </Slide>
+                slideEnabled={slideEnabled}
+                date={date}
+                avatarSVG={avatarSVG}
+                shouldHide={shouldHide}
+                elm={elm}
+              />
             ) : (
-              <Slide
+              <IncomingText
                 key={index}
-                in={true}
-                timeout={slideEnabled ? 300 : 0}
-                direction={"up"}
-              >
-                <Stack direction={"column"} key={elm.id}>
-                  <Stack
-                    direction="row"
-                    justifyContent="start"
-                    alignItems={"center"}
-                    display={shouldHide ? "none" : null}
-                    spacing={0.5}
-                  >
-                    <Avatar
-                      sx={{
-                        m: 1,
-                        width: "20px",
-                        height: "20px",
-                        bgcolor: "rgba(256,256,256, 1)",
-                      }}
-                    >
-                      <SVG src={avatarSVG} />
-                    </Avatar>
-                    <Typography variant="caption" fontWeight={550}>
-                      {elm.msgOwner}
-                    </Typography>
-                    <Typography
-                      variant="caption"
-                      fontSize={21}
-                      fontWeight={900}
-                    >
-                      &#183;
-                    </Typography>
-                    <Typography variant="caption" color={"#8A898E"}>
-                      {Date.now() - date < 60
-                        ? "now"
-                        : formatDistanceToNowStrict(date, { addSuffix: true })}
-                    </Typography>
-                  </Stack>
-                  <Stack
-                    direction="row"
-                    justifyContent="start"
-                    alignItems={"center"}
-                    spacing={1.5}
-                  >
-                    <Box
-                      justifyContent="start"
-                      p={1}
-                      paddingLeft={1.5}
-                      paddingRight={1.5}
-                      sx={{
-                        bgcolor: "lightgrey",
-                        width: "max-content",
-                        borderRadius: "16px",
-                        maxWidth: "60%",
-                      }}
-                    >
-                      <Typography sx={{ color: "black" }} fontFamily={"SF pro"}>
-                        {elm.message}
-                      </Typography>
-                    </Box>
-                  </Stack>
-                </Stack>
-              </Slide>
+                slideEnabled={slideEnabled}
+                date={date}
+                avatarSVG={avatarSVG}
+                shouldHide={shouldHide}
+                elm={elm}
+              />
+            );
+          } else if (elm.type === "link") {
+            return elm.msgOwnerID === userID ? (
+              <OutgoingLink
+                key={index}
+                slideEnabled={slideEnabled}
+                elm={elm}
+                date={date}
+                avatarSVG={avatarSVG}
+                shouldHide={shouldHide}
+              />
+            ) : (
+              <IncomingLink
+                key={index}
+                elm={elm}
+                slideEnabled={slideEnabled}
+                date={date}
+                avatarSVG={avatarSVG}
+                shouldHide={shouldHide}
+              />
             );
           } else if (elm.type === "connection") {
-            return (
-              <Stack
-                direction="row"
-                alignItems="center"
-                justifyContent="space-between"
-                key={elm.id}
-              >
-                <Box
-                  display="flex"
-                  alignItems="center"
-                  width="100%"
-                  position="relative"
-                  marginTop={1.5}
-                  marginBottom={1.5}
-                >
-                  <CustomBox
-                    flexGrow={1}
-                    borderBottom="1px solid"
-                    marginRight={1}
-                  />
-                  <Typography variant="caption" textAlign="center">
-                    <strong>{elm.user}</strong>{" "}
-                    {elm.connection === "connection"
-                      ? "joined the chat"
-                      : "left the chat"}
-                  </Typography>
-                  <CustomBox
-                    flexGrow={1}
-                    borderBottom="1px solid"
-                    marginLeft={1}
-                  />
-                </Box>
-                <div ref={scrollRef}></div>
-              </Stack>
-            );
+            return <Connection key={index} scrollRef={scrollRef} elm={elm} />;
           }
-          // return elm.msgOwnerID === userID ? (
-          //   <Slide
-          //     key={index}
-          //     in={true}
-          //     timeout={slideEnabled ? 300 : 0}
-          //     direction={"up"}
-          //   >
-          //     <Stack direction={"column"} key={`${elm.id}`}>
-          //       <Stack
-          //         direction="row"
-          //         justifyContent="end"
-          //         alignItems={"center"}
-          //         spacing={0.4}
-          //         display={shouldHide ? "none" : null}
-          //         marginTop={2}
-          //       >
-          //         <Avatar
-          //           sx={{
-          //             m: 1,
-          //             width: "20px",
-          //             height: "20px",
-          //             bgcolor: "rgba(256,256,256, 1)",
-          //           }}
-          //         >
-          //           <SVG src={avatarSVG} />
-          //         </Avatar>
-          //         <Typography variant="caption" fontWeight={550}>
-          //           {elm.msgOwner}
-          //         </Typography>
-          //         <Typography variant="caption" fontSize={21} fontWeight={900}>
-          //           &#183;
-          //         </Typography>
-          //         <Typography variant="caption" color={"#8A898E"}>
-          //           {Date.now() - date < 60
-          //             ? "now"
-          //             : formatDistanceToNowStrict(date, { addSuffix: true })}
-          //         </Typography>
-          //       </Stack>
-          //       <Stack
-          //         direction="row"
-          //         justifyContent="end"
-          //         alignItems={"center"}
-          //         spacing={1.5}
-          //       >
-          //         <Box
-          //           justifyContent="end"
-          //           p={1}
-          //           paddingLeft={1.5}
-          //           paddingRight={1.5}
-          //           bgcolor="#5B96F7"
-          //           sx={{
-          //             width: "max-content",
-          //             borderRadius: "16px",
-          //             maxWidth: "50%",
-          //           }}
-          //         >
-          //           <Typography sx={{ color: "white" }} fontFamily={"SF pro"}>
-          //             {elm.from}
-          //           </Typography>
-          //         </Box>
-          //       </Stack>
-          //     </Stack>
-          //   </Slide>
-          // ) : (
-          //   <Slide
-          //     key={index}
-          //     in={true}
-          //     timeout={slideEnabled ? 300 : 0}
-          //     direction={"up"}
-          //   >
-          //     <Stack direction={"column"} key={elm.id}>
-          //       <Stack
-          //         direction="row"
-          //         justifyContent="start"
-          //         alignItems={"center"}
-          //         display={shouldHide ? "none" : null}
-          //         spacing={0.5}
-          //       >
-          //         <Avatar
-          //           sx={{
-          //             m: 1,
-          //             width: "20px",
-          //             height: "20px",
-          //             bgcolor: "rgba(256,256,256, 1)",
-          //           }}
-          //         >
-          //           <SVG src={avatarSVG} />
-          //         </Avatar>
-          //         <Typography variant="caption" fontWeight={550}>
-          //           {elm.msgOwner}
-          //         </Typography>
-          //         <Typography variant="caption" fontSize={21} fontWeight={900}>
-          //           &#183;
-          //         </Typography>
-          //         <Typography variant="caption" color={"#8A898E"}>
-          //           {Date.now() - date < 60
-          //             ? "now"
-          //             : formatDistanceToNowStrict(date, { addSuffix: true })}
-          //         </Typography>
-          //       </Stack>
-          //       <Stack
-          //         direction="row"
-          //         justifyContent="start"
-          //         alignItems={"center"}
-          //         spacing={1.5}
-          //       >
-          //         <Box
-          //           justifyContent="start"
-          //           p={1}
-          //           paddingLeft={1.5}
-          //           paddingRight={1.5}
-          //           sx={{
-          //             bgcolor: "lightgrey",
-          //             width: "max-content",
-          //             borderRadius: "16px",
-          //             maxWidth: "60%",
-          //           }}
-          //         >
-          //           <Typography sx={{ color: "black" }} fontFamily={"SF pro"}>
-          //             {elm.from}
-          //           </Typography>
-          //         </Box>
-          //       </Stack>
-          //     </Stack>
-          //   </Slide>
-          // );
         })}
       </Stack>
     </Box>
