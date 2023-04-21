@@ -3,6 +3,16 @@ import { formatDistanceToNowStrict } from "date-fns";
 import { Avatar, Box, Slide, Stack, Typography } from "@mui/material";
 import SVG from "react-inlinesvg";
 
+const isMobileDevice = () => {
+  return (
+    typeof window.orientation !== "undefined" ||
+    navigator.userAgent.indexOf("IEMobile") !== -1 ||
+    /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+      navigator.userAgent
+    )
+  );
+};
+
 
 export default function IncomingText(props) {
   return (
@@ -54,7 +64,7 @@ export default function IncomingText(props) {
               bgcolor: "lightgrey",
               width: "max-content",
               borderRadius: "16px",
-              maxWidth: "55%",
+              maxWidth: isMobileDevice() ? "70%" : "55%",
             }}
           >
             <Typography

@@ -4,6 +4,16 @@ import Embed from "react-embed";
 import SVG from "react-inlinesvg";
 import { formatDistanceToNowStrict } from "date-fns";
 
+const isMobileDevice = () => {
+  return (
+    typeof window.orientation !== "undefined" ||
+    navigator.userAgent.indexOf("IEMobile") !== -1 ||
+    /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+      navigator.userAgent
+    )
+  );
+};
+
 export function OutgoingLink(props) {
   return (
     <>
@@ -49,7 +59,7 @@ export function OutgoingLink(props) {
             bgcolor: "#5B96F7",
             borderRadius: 1.5,
             width: "max-content",
-            maxWidth: "60%",
+            maxWidth: isMobileDevice() ? "90%" : "60%",
           }}
         >
           <Stack spacing={2}>
