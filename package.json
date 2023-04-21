@@ -12,6 +12,7 @@
     "@mui/icons-material": "^5.10.9",
     "@mui/material": "^5.10.12",
     "@mui/styles": "^5.10.10",
+    "@phosphor-icons/react": "^2.0.8",
     "@testing-library/jest-dom": "^5.16.5",
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",
@@ -20,11 +21,13 @@
     "emoji-mart": "^5.2.2",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "react-embed": "^3.6.0",
     "react-icons": "^4.6.0",
     "react-inlinesvg": "^3.0.1",
     "react-router-dom": "^5.3.4",
     "react-scripts": "5.0.1",
     "socket.io-client": "^4.6.1",
+    "use-sound": "^4.0.1",
     "web-vitals": "^2.1.4"
   },
   "scripts": {
